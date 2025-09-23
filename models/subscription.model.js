@@ -4,19 +4,19 @@ const subscriptionSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Subscription Name is required"],
+      required: [true, "Subscription name is required"],
       trim: true,
       minLength: 2,
       maxLength: 100,
     },
     price: {
       type: Number,
-      required: [true, "Subscription Price is required"],
-      min: [0, "Price must be greater than or equal to 0"],
+      required: [true, "Subscription price is required"],
+      min: [0, "Price must be greater than 0"],
     },
     currency: {
       type: String,
-      enum: ["USD", "EUR", "GBP", "INR", "JPY"],
+      enum: ["USD", "EUR", "GBP"],
       default: "USD",
     },
     frequency: {
@@ -25,7 +25,16 @@ const subscriptionSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["sports", "news", "entertainment", "education", "other"],
+      enum: [
+        "sports",
+        "news",
+        "entertainment",
+        "lifestyle",
+        "technology",
+        "finance",
+        "politics",
+        "other",
+      ],
       required: true,
     },
     paymentMethod: {
@@ -35,7 +44,7 @@ const subscriptionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "canceled", "expired"],
+      enum: ["active", "cancelled", "expired"],
       default: "active",
     },
     startDate: {
@@ -52,7 +61,7 @@ const subscriptionSchema = new mongoose.Schema(
         validator: function (value) {
           return value > this.startDate;
         },
-        message: "Renewal date must be after start date",
+        message: "Renewal date must be after the start date",
       },
     },
     user: {
@@ -65,7 +74,7 @@ const subscriptionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Autocalculate renewalDate if missing.
+// Auto-calculate renewal date if missing.
 subscriptionSchema.pre("save", function (next) {
   if (!this.renewalDate) {
     const renewalPeriods = {
@@ -81,7 +90,7 @@ subscriptionSchema.pre("save", function (next) {
     );
   }
 
-  // Auto-update status if renewalDate has passed.
+  // Auto-update the status if renewal date has passed
   if (this.renewalDate < new Date()) {
     this.status = "expired";
   }
